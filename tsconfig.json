@@ -1,8 +1,39 @@
 {
   "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "target": "ES2023",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "lib": ["es2021", "dom"],
+    "declaration": true,
+    "declarationDir": "./types",
+    "declarationMap": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@assets/*": ["src/assets/*"],
+      "@schemas/*": ["src/schemas/*"]
+    },
+    "plugins": [
+      {
+        "name": "@astrojs/ts-plugin"
+      },
+    ]
+  },
+  "include": [
+    "./*.ts",
+    "src/**/*.ts",
+    "src/**/*.astro"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    ".astro"
+    ".astro",
+    "./types"
   ],
 }

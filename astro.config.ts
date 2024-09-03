@@ -13,6 +13,9 @@ export default defineConfig({
       cssMinify: false,
     },
   },
+  experimental: {
+    contentLayer: true
+  },
   integrations: [
     starlight({
       title: 'Evony TKR Tips',
