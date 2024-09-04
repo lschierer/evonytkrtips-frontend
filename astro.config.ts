@@ -33,6 +33,10 @@ export default defineConfig({
         Sidebar: './src/components/nav.astro',
       },
       customCss: [
+        '@spectrum-web-components/styles/theme-dark.css',
+        '@spectrum-web-components/styles/theme-light.css',
+        '@spectrum-web-components/styles/scale-medium.css',
+        '@spectrum-web-components/styles/typography.css',
         './src/styles/tailwind.css',
       ],
       sidebar: [

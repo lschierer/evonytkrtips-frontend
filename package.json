@@ -17,6 +17,7 @@
     "@astrojs/tailwind": "^5.1.0",
     "@lit-labs/ssr-client": "^1.1.7",
     "@spectrum-web-components/base": "^0.47.2",
+    "@spectrum-web-components/styles": "^0.47.2",
     "@spectrum-web-components/theme": "^0.47.2",
     "astro": "^4.15.2",
     "sharp": "^0.33.5",
