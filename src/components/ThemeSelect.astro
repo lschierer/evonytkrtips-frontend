@@ -10,7 +10,7 @@ import Default from '@astrojs/starlight/components/ThemeSelect.astro';
 <spectrum-theme-select>
   <Default {...(Astro.props as StarlightRouteData) }><slot /></Default>
 </spectrum-theme-select>
-<script>
+<script >
   import { 
     type Color,
     type Scale,
@@ -21,38 +21,101 @@ import Default from '@astrojs/starlight/components/ThemeSelect.astro';
 
   class SpectrumThemeSelect extends HTMLElement {
 
+    static storageKey = 'starlight-theme';
+
     /** Get a typesafe theme string from any JS value (unknown values are coerced to `'auto'`). */
 	  parseTheme = (theme: unknown): ThemeType =>
 		  theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
 
+    updateTheme = async (themeElement: Theme, color: "" | Color, scale: "" | Scale) => {
+      console.log(`color is ${color}; scale is ${scale} in updateTheme`);
+      themeElement.setAttribute('color',color);
+      themeElement.setAttribute('scale', scale);
+
+      document.querySelectorAll('div.spectrum').forEach((spectrum) => {
+        if(color === 'light') {
+          if (!spectrum.classList.contains('spectrum--light')) {
+            spectrum.classList.add('spectrum--light');
+          }
+          if(spectrum.classList.contains('spectrum--dark')) {
+            spectrum.classList.remove('spectrum--dark');
+          }
+        }
+        else if (color === 'dark') {
+          if (!spectrum.classList.contains('spectrum--dark')) { 
+            spectrum.classList.add('spectrum--dark');
+          }
+          if (spectrum.classList.contains('spectrum--light')) {
+            spectrum.classList.remove('spectrum--light');
+          }
+        }
+        else {
+          console.log(`color is an unknown value ${color}`);
+        }
+      });
+    }
+
+    loadTheme = (): ThemeType =>
+		  this.parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(SpectrumThemeSelect.storageKey));
+
+
+    getPreferredColorScheme = (): Color =>
+		  window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+
+    onThemeChange(theme: ThemeType): void {
+      document.documentElement.dataset.theme = theme === 'auto' ? this.getPreferredColorScheme() : theme; 
+    }
+
 		constructor() {
 			super();
+
+      const storedTheme =
+        typeof localStorage !== 'undefined' &&
+        localStorage.getItem('starlight-theme');
+      
+      const theme = storedTheme ||
+        (window.matchMedia('(prefers-color-scheme: light)').matches
+        ? 'light'
+        : 'dark');
+
 			this.querySelector('select')?.addEventListener('change', (e) => {
+
+        console.log('detected change event in SpectrumThemeSelect');
 				if (e.currentTarget instanceof HTMLSelectElement) {
 					const themeElement = document.querySelector('sp-theme');
           if(themeElement !== null ) {
-            const updateTheme = async (color: "" | Color, scale: "" | Scale) => {
-              Promise.all([
-                import(`@spectrum-web-components/theme/theme-${color}.js`),
-                import(`@spectrum-web-components/theme/scale-${scale}.js`),
-              ]).then(() => {
-                (themeElement as Theme).color = color;
-                (themeElement as Theme).scale = scale;
-              });
-              if (e.currentTarget instanceof HTMLSelectElement) {
-                let preference = this.parseTheme(e.currentTarget.value);
-                if (preference === 'auto') {
-                  preference = 'light';
-                }                
-                updateTheme(preference, 'medium');
-              }
-              
-            };
-          }
+            if (e.currentTarget instanceof HTMLSelectElement) {
+              const theme: ThemeType = this.parseTheme(e.currentTarget.value);
 
-        
-				}
-			});
+              const color: Color | ThemeType = theme.localeCompare('auto') ? theme : this.getPreferredColorScheme();
+
+              this.updateTheme(themeElement, (color as Color), 'medium');
+            }
+          }
+          else {
+            console.log(`failed to find sp-theme in SpectrumThemeSelect`);
+          }
+        }
+      });
+
+      if(theme === 'light' || theme === 'dark') {
+        document.querySelectorAll('sp-theme').forEach((sptheme) => {
+          const colorattribute = sptheme.getAttribute('color');
+          if(theme === 'light') {
+            if(colorattribute && colorattribute.localeCompare('light')) {
+              this.updateTheme(sptheme, 'light', 'medium');
+            }
+          }
+          else if (theme === 'dark') {
+            if(colorattribute && colorattribute.localeCompare('dark')) { 
+              this.updateTheme(sptheme, 'dark', 'medium');
+            }
+          }
+          else {
+            console.error(`failure setting theme`);
+          }
+        });
+      }
 		}
 	}
 	customElements.define('spectrum-theme-select', SpectrumThemeSelect);

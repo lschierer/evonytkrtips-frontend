@@ -10,12 +10,12 @@ import Default from '@astrojs/starlight/components/PageFrame.astro';
   import '@spectrum-web-components/theme/sp-theme.js';
   import '@spectrum-web-components/theme/src/themes.js';
 </script>
-<div class="spectrum spectrum--medium">
-  
+<div class="spectrum spectrum--light spectrum--medium">
+  <sp-theme scale="medium" color="light">
     <Default class=".header" {...Astro.props}>
       <slot name="header" slot="header" />
       <slot name="sidebar" slot="sidebar" />
       <slot />
     </Default>
-  
+  </sp-theme>
 </div>
