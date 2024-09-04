@@ -38,6 +38,7 @@ const general = (Astro.props as Props).entry.data;
 <StarlightPage
   frontmatter={{ title: `Details for ${id}`, tableOfContents: false }}
 >
+
   <Debug entry={general} />
   <slot />
 </StarlightPage>

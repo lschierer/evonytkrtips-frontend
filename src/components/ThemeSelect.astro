@@ -1,0 +1,59 @@
+---
+import { type Props as StarlightRouteData } from '@astrojs/starlight/props';
+
+import Default from '@astrojs/starlight/components/ThemeSelect.astro';
+
+---
+
+
+
+<spectrum-theme-select>
+  <Default {...(Astro.props as StarlightRouteData) }><slot /></Default>
+</spectrum-theme-select>
+<script>
+  import { 
+    type Color,
+    type Scale,
+    Theme
+  } from '@spectrum-web-components/theme';
+
+  type ThemeType = 'auto' | 'dark' | 'light';
+
+  class SpectrumThemeSelect extends HTMLElement {
+
+    /** Get a typesafe theme string from any JS value (unknown values are coerced to `'auto'`). */
+	  parseTheme = (theme: unknown): ThemeType =>
+		  theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+
+		constructor() {
+			super();
+			this.querySelector('select')?.addEventListener('change', (e) => {
+				if (e.currentTarget instanceof HTMLSelectElement) {
+					const themeElement = document.querySelector('sp-theme');
+          if(themeElement !== null ) {
+            const updateTheme = async (color: "" | Color, scale: "" | Scale) => {
+              Promise.all([
+                import(`@spectrum-web-components/theme/theme-${color}.js`),
+                import(`@spectrum-web-components/theme/scale-${scale}.js`),
+              ]).then(() => {
+                (themeElement as Theme).color = color;
+                (themeElement as Theme).scale = scale;
+              });
+              if (e.currentTarget instanceof HTMLSelectElement) {
+                let preference = this.parseTheme(e.currentTarget.value);
+                if (preference === 'auto') {
+                  preference = 'light';
+                }                
+                updateTheme(preference, 'medium');
+              }
+              
+            };
+          }
+
+        
+				}
+			});
+		}
+	}
+	customElements.define('spectrum-theme-select', SpectrumThemeSelect);
+</script>

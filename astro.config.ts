@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+import tailwind from '@astrojs/tailwind';
+
 // https://astro.build/config
 export default defineConfig({
   site: import.meta.env.PROD ? 'https://www.evonytkrtips.net' : "http://${import.meta.env.MODE}.evonytkrtips.net",
@@ -24,17 +26,25 @@ export default defineConfig({
       social: {
         github: 'https://github.com/lschiere/',
       },
+      components: {
+        ThemeSelect: './src/components/ThemeSelect.astro',
+        PageFrame: './src/components/PageFrame.astro',
+        TwoColumnContent: './src/components/TwoColumnContent.astro',
+        Sidebar: './src/components/nav.astro',
+      },
+      customCss: [
+        './src/styles/tailwind.css',
+      ],
       sidebar: [
         {
-          label: 'Guides',
+          label: 'Generals',
           items: [
-            // Each item here is one entry in the navigation menu.
-            { label: 'Example Guide', slug: 'guides/example' },
-          ],
-        },
-        {
-          label: 'Reference',
-          autogenerate: { directory: 'reference' },
+            { 
+              label: 'Details on Specific Generals',
+              items: [],
+              collapsed: true
+            }
+          ]
         },
       ],
       head: [
@@ -55,6 +65,9 @@ export default defineConfig({
       ],
       lastUpdated: true,
       pagination: true,
+    }), 
+    tailwind({
+      applyBaseStyles: false,
     }),
   ],
 });
