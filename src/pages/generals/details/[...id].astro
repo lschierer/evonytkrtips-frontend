@@ -5,10 +5,10 @@ import type {
   GetStaticPaths,
 } from 'astro';
 
-import {generalObject } from '@schemas/index';
+import {General } from '@schemas/index';
 
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
- 
+
 const DEBUG = true;
 import { Debug } from 'astro:components';
 
@@ -32,13 +32,29 @@ if (id === undefined) {
   throw new Error('Id is required');
 }
 
-const general = (Astro.props as Props).entry.data;
+const general: General = (Astro.props as Props).entry.data;
 
 ---
 <StarlightPage
   frontmatter={{ title: `Details for ${id}`, tableOfContents: false }}
 >
+<h3 class="spectrum-Heading spectrum-Heading--sizeM">Base Stats:</h3>
+<p class="spectrum-Body spectrum-Body--sizeM">
+  <strong>Leadership: </strong> {general.leadership} (+{general.leadership_increment} per level)
+</p>
+<p class="spectrum-Body spectrum-Body--sizeM">
+  <strong>Attack: </strong> {general.attack} (+{general.attack_increment} per level)
+</p>
+<p class="spectrum-Body spectrum-Body--sizeM">
+  <strong>Defense: </strong> {general.defense} (+{general.defense_increment} per level)
+</p>
+<p class="spectrum-Body spectrum-Body--sizeM">
+  <strong>Politics: </strong> {general.politics} (+{general.politics_increment} per level)
+</p>
 
+<h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
+
+<h4 class="spectrum-Heading spectrum-Heading--sizeS">{general.builtInBook.name}</h4>
   <Debug entry={general} />
   <slot />
 </StarlightPage>
