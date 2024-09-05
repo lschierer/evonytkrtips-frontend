@@ -5,7 +5,7 @@ import type {
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
-import {generalObject } from '@schemas/index';
+import {General } from '@schemas/index';
 // @ts-expect-error using a weird illegal import on purpose
 import type { SidebarEntry, Group } from '@astrojs/starlight/utils/navigation';
 
@@ -14,7 +14,7 @@ import type { Props } from '@astrojs/starlight/props';
 
 const DEBUG = true;
 
-const generals: SidebarEntry[] = new Array<generalObject>();
+const generals: SidebarEntry[] = new Array<General>();
 
 type generalEntry = CollectionEntry<'generals'>;
 
