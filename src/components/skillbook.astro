@@ -1,6 +1,8 @@
 ---
 import { getEntry } from 'astro:content';
 import {skillBook} from '@schemas/index';
+import type { Value } from '@schemas/evony';
+import type { log } from 'node_modules/astro/dist/core/logger/core';
 
 interface Props {
   name: string
@@ -18,9 +20,55 @@ if( name.toLocaleLowerCase().localeCompare(book.name.
   throw new Error('Invalid SkillBook');
   }
 
+let contentString = '';
+const defaultMissingBookText = 'Original Text Not Available.'.toLocaleLowerCase();
+if((book.text !== null && book.text !== undefined) && book.text.toLocaleLowerCase().localeCompare(defaultMissingBookText)) {
+  contentString = book.text;
+}
+if(DEBUG) console.log(`book.text is ${book.text}`);
+if(DEBUG) console.log(`defaultMissingBookText is ${defaultMissingBookText}`);
+if(DEBUG) console.log(`contentString is ${contentString}`);
 ---
 
-<h3 class="spectrum-Heading spectrum-Heading--sizeM">{name}</h3>
+<h4 class="spectrum-Heading spectrum-Heading--sizeM">{name}</h3>
 <p class="spectrum-Body spectrum-Body--sizeM">
-  {book.text}
+  {(contentString.length > 0) ? contentString : (
+    <div class="grid non-content">
+      <ul class="spectrum-Body spectrum-Body--sizeM">
+        {(book.buffs !== undefined) && (book.buffs.length > 0) && book.buffs.map((b)=>(
+          <li class="spectrum-Body spectrum-Body--sizeM">
+            {b.condition && b.condition.join(' ')}
+            {b.class}
+            {b.attribute ? b.attribute : ' '}
+            {b.value.number}{b.value.unit.localeCompare('percentage') ? '' : '%'}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
 </p>
+<style>
+  .grid {
+    display: grid;
+  }
+  ul {
+    margin: 0;
+    padding-top: 0;
+    padding-left: 1rem;
+    
+    & li {
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: 0.5rem;
+    }
+  }
+
+  :is(div) {
+    align-content: start;
+    justify-content: start;
+    margin: 0.1px;
+  }
+
+</style>

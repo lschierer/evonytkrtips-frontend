@@ -101,7 +101,7 @@ export const General = z.object({
   "id": z.string(),
   "ComponentScores": ComponentScores,
   "EvAnsScores": EvAnsScores,
-  "ascendingAttributes": z.record(z.string(), z.array(z.string())),
+  "ascendingAttributes": z.record(z.string(), z.array(Buff)),
   "attack": z.number(),
   "attack_increment": z.number(),
   "builtInBook": skillBook,

@@ -63,9 +63,18 @@ const general: General = (Astro.props as Props).entry.data;
   <strong>Politics: </strong> {general.politics} (+{general.politics_increment} per level)
 </p>
 
-<h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
-<SkillBook name={general.builtInBook.name}></SkillBook>
-
+<div>
+  <h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
+  <SkillBook name={general.builtInBook.name}></SkillBook>
+</div>
+{(general.otherBooks.length > 0) && (
+  <div>
+    <h3 class="spectrum-Heading spectrum-Heading--sizeM">General Skin/Outfit:</h3>
+    {general.otherBooks.map((ob) => (
+      <SkillBook name={ob.name}></SkillBook>
+    ))}
+  </div>
+)}
   <Debug entry={general} />
   <slot />
 </StarlightPage>
