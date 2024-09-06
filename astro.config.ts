@@ -16,7 +16,8 @@ export default defineConfig({
     },
   },
   experimental: {
-    contentLayer: true
+    contentLayer: true,
+    contentIntellisense: true,
   },
   integrations: [
     starlight({
