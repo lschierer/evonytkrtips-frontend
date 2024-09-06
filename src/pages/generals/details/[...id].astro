@@ -4,8 +4,12 @@ import type {
   InferGetStaticPropsType,
   GetStaticPaths,
 } from 'astro';
+import type { ComponentProps } from 'astro/types';
 
 import {General } from '@schemas/index';
+
+import SkillBook from '@components/SkillBook.astro';
+type SkillBook = ComponentProps<typeof SkillBook>;
 
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
@@ -16,11 +20,18 @@ import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
 export const getStaticPaths = (async () => {
-  const generalEntries: CollectionEntry<'generals'>[] | undefined = await getCollection('generals');
-  return generalEntries.map((entry: CollectionEntry<'generals'>) => ({
-    params: { id: entry.id },
-    props: { entry },
-  }));
+  const generalEntries: CollectionEntry<'generals'>[] | undefined =
+    await getCollection('generals');
+  if(generalEntries) {
+    return generalEntries.map((entry: CollectionEntry<'generals'>) => ({
+      params: { id: entry.id },
+      props: { entry },
+    }));
+  }
+  else {
+    if(DEBUG) console.log("No generalEntries returned from getCollection in getStaticPaths")
+    throw new Error('No generals found.');
+  }
 }) satisfies GetStaticPaths;
 
 type Params = InferGetStaticParamsType<typeof getStaticPaths>;
@@ -53,8 +64,8 @@ const general: General = (Astro.props as Props).entry.data;
 </p>
 
 <h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
+<SkillBook name={general.builtInBook.name}></SkillBook>
 
-<h4 class="spectrum-Heading spectrum-Heading--sizeS">{general.builtInBook.name}</h4>
   <Debug entry={general} />
   <slot />
 </StarlightPage>

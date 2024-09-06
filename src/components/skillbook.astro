@@ -1,13 +1,26 @@
 ---
-//import {skillBook} from '@schemas/index';
+import { getEntry } from 'astro:content';
+import {skillBook} from '@schemas/index';
 
 interface Props {
   name: string
 }
 
+const DEBUG = 1;
+
 const { name } = Astro.props;
 
+const bookEntry  = await getEntry('skillBooks', name);
+const book: skillBook = bookEntry.data;
+if( name.toLocaleLowerCase().localeCompare(book.name.
+  toLocaleLowerCase(), undefined , {sensitivity: 'base'})) {
+    if (DEBUG) console.log(`{name} does not match {book.name}`);
+  throw new Error('Invalid SkillBook');
+  }
 
 ---
 
 <h3 class="spectrum-Heading spectrum-Heading--sizeM">{name}</h3>
+<p class="spectrum-Body spectrum-Body--sizeM">
+  {book.text}
+</p>

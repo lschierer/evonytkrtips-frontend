@@ -89,13 +89,13 @@ export const ComponentScores = z.object({
 });
 export type ComponentScores = z.infer<typeof ComponentScores>;
 
-export const SkillBook = z.object({
+export const skillBook = z.object({
   "id":   z.string().optional(),
   "buffs": z.array(Buff).optional(),
   "name": z.string(),
   "text": z.union([z.null(), z.string()]),
 });
-export type SkillBook = z.infer<typeof SkillBook>;
+export type skillBook = z.infer<typeof skillBook>;
 
 export const General = z.object({
   "id": z.string(),
@@ -104,7 +104,7 @@ export const General = z.object({
   "ascendingAttributes": z.record(z.string(), z.array(z.string())),
   "attack": z.number(),
   "attack_increment": z.number(),
-  "builtInBook": SkillBook,
+  "builtInBook": skillBook,
   "defense": z.number(),
   "defense_increment": z.union([z.number(), z.string()]),
   "hasCovenant": z.boolean(),
@@ -112,7 +112,7 @@ export const General = z.object({
   "leadership": z.number(),
   "leadership_increment": z.union([z.number(), z.string()]),
   "level": z.number(),
-  "otherBooks": z.array(SkillBook),
+  "otherBooks": z.array(skillBook),
   "politics": z.number(),
   "politics_increment": z.union([z.number(), z.string()]),
   "specialities": z.array(Speciality),
