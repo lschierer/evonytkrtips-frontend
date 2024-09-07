@@ -1,0 +1,31 @@
+---
+import { Buff} from '@schemas/index';
+import type { HTMLAttributes, HTMLTag, Polymorphic } from 'astro/types';
+
+interface Props {
+  buff: Buff,
+  bgColor?: string,
+}
+
+const DEBUG = 1;
+
+const { buff, bgColor,  } = Astro.props;
+
+if(buff == undefined || buff == null) {
+  throw new Error('Buff must be defined for the HtmlBuff Component');
+}
+
+let localBG = 'var(--sl--color-bg);'
+if(bgColor == undefined || bgColor.length == 0) {
+  localBG == bgColor;
+}
+
+const bClass = `not-content buffAttribute spectrum-Body spectrum-Body--sizeM`;
+---
+
+<div class={bClass} >
+  {buff.condition && buff.condition.join(' ')}
+  {buff.class}
+  {buff.attribute ? buff.attribute : ' '}
+  {buff.value.number}{buff.value.unit.localeCompare('percentage') ? '' : '%'}
+</div>

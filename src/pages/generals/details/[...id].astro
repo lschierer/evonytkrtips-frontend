@@ -5,6 +5,10 @@ import type {
   GetStaticPaths,
 } from 'astro';
 import type { ComponentProps } from 'astro/types';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
 import {
   General, 
@@ -15,16 +19,12 @@ import {
 import SkillBook from '@components/SkillBook.astro';
 type SkillBook = ComponentProps<typeof SkillBook>;
 
-import BuffList from '@components/BuffList.astro';
-type BuffList = ComponentProps<typeof BuffList>;
-
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import HtmlBuff from '@components/HtmlBuff.astro';
+type HtmlBuff = ComponentProps<typeof HtmlBuff>;
 
 const DEBUG = true;
 import { Debug } from 'astro:components';
 
-import { getCollection } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
 
 export const getStaticPaths = (async () => {
   const generalEntries: CollectionEntry<'generals'>[] | undefined =
@@ -60,24 +60,32 @@ if(general.ascendingAttributes && Object.keys(general.ascendingAttributes).lengt
     ascendingRows = Math.max(ascendingRows, buffs.length );
   });
 }
+ascendingRows = ascendingRows * 2;
 
-let specalityRows = 0;
+type specialityRow = Record<string, number>;
+let specalityRows: specialityRow = {};
 const specalityLevels =['Green', 'Blue', 'Purple', 'Orange', 'Gold'];
 general.specialities.forEach((sp: Speciality) => {
   if(sp && Object.keys(sp).length >= 1) {  
     specalityLevels.forEach((slk: string) => {
-      const slv = sp[slk as keyof typeof sp];
-      if(slv && Object.keys(slv).length >= 1) {
-        if(Array.isArray(slv) && (slv as Buff[]).length >= 1) {
-          specalityRows = Math.max(specalityRows, (slv as Buff[]).length);
-          if(DEBUG) console.log(`specalityRows for ${id} is ${specalityRows}`);
-        }
+      // @ts-expect-error
+      const slv : Buff[] | undefined = sp[slk as keyof typeof sp];
+      if(slv && Array.isArray(slv) && slv.length >= 1) {
+        const rows = slv.length * 2;
+        let current = (specalityRows[slk]) ?? 0;
+        specalityRows[slk] = Math.max( current, rows);
       }
     })
   }
 })
 
+const GreenRows = specalityRows['Green'];
+const BlueRows = specalityRows['Blue'];
+const PurpleRows = specalityRows['Purple'];
+const OrangeRows = specalityRows['Orange'];
+const GoldRows = specalityRows['Gold'];
 
+const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + GoldRows;
 ---
 <StarlightPage
   frontmatter={{ title: `Details for ${id}`, tableOfContents: false }}
@@ -113,59 +121,68 @@ general.specialities.forEach((sp: Speciality) => {
 )}
 
 { general.ascendingAttributes && (
-  <div class="grid ascendingAttributes">
-    <div class="AscendingHeading">
+  <div class="not-content grid ascendingAttributes">
+    <div class="not-content AscendingHeading">
       <h3 class="spectrum-Heading spectrum-Heading--sizeM">
         Ascending Skill Buffs
       </h3>
     </div>
+    <div class="not-content AscendingBuffAttributes">
     {general.ascendingAttributes && 
       Object.keys(general.ascendingAttributes).map((ak, index) => {
         const title=`${index+1} Star`;
-        const ascendingClass=`AscendingIndex${index+1}`;
-        return (<div class={ascendingClass}>
-          <BuffList
-            title={title}
-            headingSize='5'
-            buffArray={general.ascendingAttributes[ak]}
-          ></BuffList>
-        </div>)
+        const ascendingClass=`not-content AscendingIndex${index+1}`;
+        const buffs: Buff[] = general.ascendingAttributes[ak];
+        return (
+          <div class={ascendingClass}>
+            <div class="starHeading">
+              {title}
+            </div>
+            {buffs.map((b) => (
+              <div class="individualBuff">
+                <HtmlBuff buff={b} ></HtmlBuff>
+              </div> 
+            ))}
+          </div>
+        );
       })
     }
+    </div>
   </div>
 )}
 
-{(specalityRows >= 0) && (
-  <div class="grid specialities">
-    <div class="SpecalityHeading">
+{(maxSpecalityRows >= 0) && (
+  <div class="not-content grid specialities">
+    <div class="not-content SpecalityHeading">
       <h3 class="spectrum-Heading spectrum-Heading--sizeM">
         Specialities
       </h3>
     </div>
-    <div class="grid TableOfSpecialities no-content">
+    <div class="not-content TableOfSpecialities ">
       {general.specialities.map((sp: Speciality, index) => {
-        const spIndex=`Speciality${index}`;
-        return(<div class={spIndex}>
-            <div class="SpecialityHeader">
+        const spIndex=`subgrid SpecialityIndex${index+1}`;
+        return(<div  class={spIndex}>
+            <div class="not-content SpecialityName">
               <p class="spectrum-Detail spectrum-Detail--sizeXL">
                 <strong>{sp.name}</strong>
               </p>
             </div>
-            {specalityLevels.map((sl) => {
-              const sk = Object.keys(sp).find((e) => {
-                return ! e.localeCompare(sl);
-              });
-              const bgColor=`var(--spectrum-${sl.toLocaleLowerCase()}-600)`;
-              const buffs: Buff[]| undefined = sp[sk as keyof typeof Speciality];
-              if(Array.isArray(buffs)) {
-                return (
-                <BuffList
-                title={sk}
-                headingSize='5'
-                buffArray={buffs},
-                bgColor={bgColor}
-              ></BuffList>);
-              }              
+            {specalityLevels && specalityLevels.map((sl) => {
+              const levelClass = `not-content ${sl}`;
+              return (
+                <div class={levelClass}>
+                  <div class="not-content slHeader">
+                    {sl}
+                  </div>
+                  <div class="not-content slContent">
+                    {sp[sl] && sp[sl].map((b: Buff) => (
+                      <div class="not-content individualBuff">
+                        <HtmlBuff buff={b} ></HtmlBuff>
+                      </div> 
+                    ))}
+                  </div>
+                </div>
+              );
             })}
           </div>)
       })}
@@ -177,11 +194,26 @@ general.specialities.forEach((sp: Speciality) => {
   <slot />
 </StarlightPage>
 
-<style>
+<style define:vars={{ 
+  ascendingRows, 
+  maxSpecalityRows, 
+  GreenRows, 
+  BlueRows,  
+  PurpleRows,
+  OrangeRows,
+  GoldRows,
+  }}>
   <style>
   .grid {
     display: grid;
   }
+
+  .subgrid {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+  }
+
   ul {
     margin: 0;
     padding-top: 0;
@@ -207,8 +239,7 @@ general.specialities.forEach((sp: Speciality) => {
     height: fit-content;
   
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(3, minmax(var(spectrum-spacing-200), auto));
-    grid-auto-rows: repeat(rowsNeeded, minmax(var(spectrum-spacing-200), auto));
+    grid-auto-rows: minmax(var(spectrum-spacing-200), 1fr));
 
   }
 
@@ -218,44 +249,158 @@ general.specialities.forEach((sp: Speciality) => {
     align-self: center;
   }
 
-  .AscendingIndex1 {
-    grid-column-start: 1;
-    grid-row: auto;
+  .AscendingBuffAttributes {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column-end: span 6;
+    grid-row-start: 2;
+    grid-row-end: span var(--ascendingRows);    
+  }
+  
+  .individualBuff {
+    display: list-item;
+    grid-row-end: span 1;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.1rem;
   }
 
-  ..AscendingIndex2 {
+  .AscendingIndex1 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column-start: 1;
+    grid-row-start: 2;
+    grid-row-end: span calc(var(--ascendingRows) - 2);
+  }
+
+  .AscendingIndex2 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column-start: 2;
-    grid-row: auto;
+    grid-row-start: 2;
+    grid-row-end: span calc(var(--ascendingRows) - 2);
   }
 
   .AscendingIndex3 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column-start: 3;
-    grid-row: auto;
+    grid-row-start: 2;
+    grid-row-end: span calc(var(--ascendingRows) - 2);
+
+    
   }
 
   .AscendingIndex4 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column-start: 4;
-    grid-row: auto;
+    grid-row-start: 2;
+    grid-row-end: span calc(var(--ascendingRows) - 2);
   }
 
   .AscendingIndex5 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column-start: 5;
-    grid-row: auto;
+    grid-row-start: 2;
+    grid-row-end: span calc(var(--ascendingRows) - 2);
   }
 
-  .TableOfSpecialities {
+  .specialities {
     width: 100%;
     height: fit-content;
   
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, minmax(var(spectrum-spacing-200), auto));
-    grid-auto-rows: repeat(rowsNeeded, minmax(var(spectrum-spacing-200), auto));
-
+    grid-auto-rows: minmax(var(spectrum-spacing-200), 1fr));
   }
 
-  .SpecialityHeader {
+  .SpecalityHeading {
+    grid-column: 1/5;
+    grid-row-start: 1;
     grid-row: 1, span 1;
     align-self: center;
   }
+
+  .TableOfSpecialities {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-row-start: 2;
+    grid-row-end: span var(--maxSpecalityRows);
+    grid-column: 1/5;
+    align-self: center;
+  }
+
+  .SpecialityIndex1 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column: 1/2;
+    grid-row-start: 2;
+    grid-row-end: calc(var(--maxSpecalityRows));
+  }
+
+  .SpecialityIndex2 {
+    grid-column: 2/3;
+    grid-row-start: 2;
+    grid-row-end: calc(var(--maxSpecalityRows));
+  }
+
+  .SpecialityIndex3 {
+    grid-column: 3/4;
+    grid-row-start: 2;
+    grid-row-end: calc(var(--maxSpecalityRows));
+  }
+
+  .SpecialityIndex4 {
+    grid-column: 4/5;
+    grid-row-start: 2;
+    grid-row-end: calc(var(--maxSpecalityRows));
+  }
+
+  .SpecialityName {
+    grid-row-start: 2;
+    align-self: center;
+  }
+
+  .Green {
+    background-color: var(--spectrum-global-color-green-600);
+    grid-row-start: 3;
+    grid-row-end: span var(--GreenRows);
+  }
+
+  .Blue {
+    background-color: var(--spectrum-global-color-blue-600);
+    grid-row-start: calc(var(--GreenRows) + 3);
+    grid-row-end: span var(--GreenRows);
+  }
+
+  .Purple {
+    background-color: var(--spectrum-global-color-purple-600);
+    grid-row-start: calc(calc(var(--GreenRows) + 3) + var(--BlueRows));
+    grid-row-end: span var(--PurpleRows);
+  }
+
+  .Orange {
+    background-color: var(--spectrum-global-color-orange-600);
+    grid-row-start: calc(calc(calc(var(--GreenRows) + 3) + var(--BlueRows)) + var(--PurpleRows));
+    grid-row-end: span var(--OrangeRows);
+  }
+
+  .Gold {
+    background-color: var(--spectrum-global-color-yellow-600);
+    grid-row-start: calc(calc(calc(calc(var(--GreenRows) + 3) + var(--BlueRows)) + var(--PurpleRows)) + var(--OrangeRows));
+    grid-row-end: span var(--GoldRows);
+  }
+
 
 </style>
