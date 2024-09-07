@@ -39,6 +39,7 @@ export default defineConfig({
         '@spectrum-web-components/styles/scale-medium.css',
         '@spectrum-web-components/styles/typography.css',
         './src/styles/tailwind.css',
+        './src/styles/custom.css',
       ],
       sidebar: [
         {
