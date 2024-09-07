@@ -6,10 +6,17 @@ import type {
 } from 'astro';
 import type { ComponentProps } from 'astro/types';
 
-import {General } from '@schemas/index';
+import {
+  General, 
+  Buff,
+  Speciality
+} from '@schemas/index';
 
 import SkillBook from '@components/SkillBook.astro';
 type SkillBook = ComponentProps<typeof SkillBook>;
+
+import BuffList from '@components/BuffList.astro';
+type BuffList = ComponentProps<typeof BuffList>;
 
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
@@ -45,28 +52,57 @@ if (id === undefined) {
 
 const general: General = (Astro.props as Props).entry.data;
 
+let ascendingRows = 0;
+if(general.ascendingAttributes && Object.keys(general.ascendingAttributes).length >= 1) {
+  const ascendingKeys = Object.keys(general.ascendingAttributes);
+  ascendingKeys.forEach((ak) => {
+    const buffs = general.ascendingAttributes[ak];
+    ascendingRows = Math.max(ascendingRows, buffs.length );
+  });
+}
+
+let specalityRows = 0;
+const specalityLevels =['Green', 'Blue', 'Purple', 'Orange', 'Gold'];
+general.specialities.forEach((sp: Speciality) => {
+  if(sp && Object.keys(sp).length >= 1) {  
+    specalityLevels.forEach((slk: string) => {
+      const slv = sp[slk as keyof typeof sp];
+      if(slv && Object.keys(slv).length >= 1) {
+        if(Array.isArray(slv) && (slv as Buff[]).length >= 1) {
+          specalityRows = Math.max(specalityRows, (slv as Buff[]).length);
+          if(DEBUG) console.log(`specalityRows for ${id} is ${specalityRows}`);
+        }
+      }
+    })
+  }
+})
+
+
 ---
 <StarlightPage
   frontmatter={{ title: `Details for ${id}`, tableOfContents: false }}
 >
-<h3 class="spectrum-Heading spectrum-Heading--sizeM">Base Stats:</h3>
-<p class="spectrum-Body spectrum-Body--sizeM">
-  <strong>Leadership: </strong> {general.leadership} (+{general.leadership_increment} per level)
-</p>
-<p class="spectrum-Body spectrum-Body--sizeM">
-  <strong>Attack: </strong> {general.attack} (+{general.attack_increment} per level)
-</p>
-<p class="spectrum-Body spectrum-Body--sizeM">
-  <strong>Defense: </strong> {general.defense} (+{general.defense_increment} per level)
-</p>
-<p class="spectrum-Body spectrum-Body--sizeM">
-  <strong>Politics: </strong> {general.politics} (+{general.politics_increment} per level)
-</p>
+<div>
+  <h3 class="spectrum-Heading spectrum-Heading--sizeM">Base Stats:</h3>
+  <p class="spectrum-Body spectrum-Body--sizeM">
+    <strong>Leadership: </strong> {general.leadership} (+{general.leadership_increment} per level)
+  </p>
+  <p class="spectrum-Body spectrum-Body--sizeM">
+    <strong>Attack: </strong> {general.attack} (+{general.attack_increment} per level)
+  </p>
+  <p class="spectrum-Body spectrum-Body--sizeM">
+    <strong>Defense: </strong> {general.defense} (+{general.defense_increment} per level)
+  </p>
+  <p class="spectrum-Body spectrum-Body--sizeM">
+    <strong>Politics: </strong> {general.politics} (+{general.politics_increment} per level)
+  </p>
+</div>
 
 <div>
   <h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
   <SkillBook name={general.builtInBook.name}></SkillBook>
 </div>
+
 {(general.otherBooks.length > 0) && (
   <div>
     <h3 class="spectrum-Heading spectrum-Heading--sizeM">General Skin/Outfit:</h3>
@@ -75,6 +111,151 @@ const general: General = (Astro.props as Props).entry.data;
     ))}
   </div>
 )}
+
+{ general.ascendingAttributes && (
+  <div class="grid ascendingAttributes">
+    <div class="AscendingHeading">
+      <h3 class="spectrum-Heading spectrum-Heading--sizeM">
+        Ascending Skill Buffs
+      </h3>
+    </div>
+    {general.ascendingAttributes && 
+      Object.keys(general.ascendingAttributes).map((ak, index) => {
+        const title=`${index+1} Star`;
+        const ascendingClass=`AscendingIndex${index+1}`;
+        return (<div class={ascendingClass}>
+          <BuffList
+            title={title}
+            headingSize='5'
+            buffArray={general.ascendingAttributes[ak]}
+          ></BuffList>
+        </div>)
+      })
+    }
+  </div>
+)}
+
+{(specalityRows >= 0) && (
+  <div class="grid specialities">
+    <div class="SpecalityHeading">
+      <h3 class="spectrum-Heading spectrum-Heading--sizeM">
+        Specialities
+      </h3>
+    </div>
+    <div class="grid TableOfSpecialities no-content">
+      {general.specialities.map((sp: Speciality, index) => {
+        const spIndex=`Speciality${index}`;
+        return(<div class={spIndex}>
+            <div class="SpecialityHeader">
+              <p class="spectrum-Detail spectrum-Detail--sizeXL">
+                <strong>{sp.name}</strong>
+              </p>
+            </div>
+            {specalityLevels.map((sl) => {
+              const sk = Object.keys(sp).find((e) => {
+                return ! e.localeCompare(sl);
+              });
+              const bgColor=`var(--spectrum-${sl.toLocaleLowerCase()}-600)`;
+              const buffs: Buff[]| undefined = sp[sk as keyof typeof Speciality];
+              if(Array.isArray(buffs)) {
+                return (
+                <BuffList
+                title={sk}
+                headingSize='5'
+                buffArray={buffs},
+                bgColor={bgColor}
+              ></BuffList>);
+              }              
+            })}
+          </div>)
+      })}
+    </div>
+  </div>
+)}
+
   <Debug entry={general} />
   <slot />
 </StarlightPage>
+
+<style>
+  <style>
+  .grid {
+    display: grid;
+  }
+  ul {
+    margin: 0;
+    padding-top: 0;
+    padding-left: 1rem;
+    
+    & li {
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-left: 0.5rem;
+    }
+  }
+
+  :is(div) {
+    align-content: start;
+    justify-content: start;
+    margin: 0.1px;
+  }
+
+  .ascendingAttributes {
+    width: 100%;
+    height: fit-content;
+  
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(3, minmax(var(spectrum-spacing-200), auto));
+    grid-auto-rows: repeat(rowsNeeded, minmax(var(spectrum-spacing-200), auto));
+
+  }
+
+  .AscendingHeading {
+    grid-column: 1/6;
+    grid-row: 1, span 1;
+    align-self: center;
+  }
+
+  .AscendingIndex1 {
+    grid-column-start: 1;
+    grid-row: auto;
+  }
+
+  ..AscendingIndex2 {
+    grid-column-start: 2;
+    grid-row: auto;
+  }
+
+  .AscendingIndex3 {
+    grid-column-start: 3;
+    grid-row: auto;
+  }
+
+  .AscendingIndex4 {
+    grid-column-start: 4;
+    grid-row: auto;
+  }
+
+  .AscendingIndex5 {
+    grid-column-start: 5;
+    grid-row: auto;
+  }
+
+  .TableOfSpecialities {
+    width: 100%;
+    height: fit-content;
+  
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, minmax(var(spectrum-spacing-200), auto));
+    grid-auto-rows: repeat(rowsNeeded, minmax(var(spectrum-spacing-200), auto));
+
+  }
+
+  .SpecialityHeader {
+    grid-row: 1, span 1;
+    align-self: center;
+  }
+
+</style>
