@@ -25,6 +25,7 @@ type HtmlBuff = ComponentProps<typeof HtmlBuff>;
 const DEBUG = true;
 import { Debug } from 'astro:components';
 
+type specialityRow = Record<string, number>;
 
 export const getStaticPaths = (async () => {
   const generalEntries: CollectionEntry<'generals'>[] | undefined =
@@ -62,8 +63,8 @@ if(general.ascendingAttributes && Object.keys(general.ascendingAttributes).lengt
 }
 ascendingRows = ascendingRows * 2;
 
-type specialityRow = Record<string, number>;
-let specalityRows: specialityRow = {};
+
+const specalityRows: specialityRow = {};
 const specalityLevels =['Green', 'Blue', 'Purple', 'Orange', 'Gold'];
 general.specialities.forEach((sp: Speciality) => {
   if(sp && Object.keys(sp).length >= 1) {  
@@ -74,6 +75,7 @@ general.specialities.forEach((sp: Speciality) => {
         const rows = slv.length * 2;
         let current = (specalityRows[slk]) ?? 0;
         specalityRows[slk] = Math.max( current, rows);
+        
       }
     })
   }
@@ -86,9 +88,34 @@ const OrangeRows = specalityRows['Orange'];
 const GoldRows = specalityRows['Gold'];
 
 const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + GoldRows;
+
+/*
+const GreenKey = Object.keys(general.specialities[0]).find((key) => {
+  return key.localeCompare('Green');
+});
+
+const BlueKey = Object.keys(general.specialities[0]).find((key) => {
+  return key.localeCompare('Blue');
+});
+
+const PurpleKey = Object.keys(general.specialities[0]).find((key) => {
+  return key.localeCompare('Purple');
+});
+
+const OrangeKey = Object.keys(general.specialities[0]).find((key) => {
+  return key.localeCompare('Orange');
+});
+
+const GoldKey = Object.keys(general.specialities[0]).find((key) => {
+  return key.localeCompare('Gold');
+});
+*/
 ---
 <StarlightPage
-  frontmatter={{ title: `Details for ${id}`, tableOfContents: false }}
+  frontmatter={{ title: `Details for ${id}`, tableOfContents: {
+    minHeadingLevel: 2,
+    maxHeadingLevel: 5,
+  } }}
 >
 <div>
   <h3 class="spectrum-Heading spectrum-Heading--sizeM">Base Stats:</h3>
@@ -159,32 +186,41 @@ const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + Go
       </h3>
     </div>
     <div class="not-content TableOfSpecialities ">
-      {general.specialities.map((sp: Speciality, index) => {
-        const spIndex=`subgrid SpecialityIndex${index+1}`;
-        return(<div  class={spIndex}>
-            <div class="not-content SpecialityName">
-              <p class="spectrum-Detail spectrum-Detail--sizeXL">
-                <strong>{sp.name}</strong>
-              </p>
+      {general.specialities.map((sp, index) => {
+        if(sp && Object.keys(sp).length >= 1) {
+          const indexClass = `not-content SpecialityIndex${index+1}`;
+          return (
+            <div class={indexClass}>
+              <div class="not-content SpecialityName">
+                <p class="spectrum-Detail spectrum-Detail--sizeXL">
+                  <strong>{sp.name}</strong>
+                </p>
+              </div>
+              <div class="not-content SpecialityContent">
+                {specalityLevels && 
+                  specalityLevels.map((slk: string) => {
+                  const levelClass = `not-content ${slk}`;
+                  // @ts-expect-error
+                  const slv: Buff[] | undefined = sp[slk as keyof typeof sp];
+                  return (
+                    <div class={levelClass}>
+                      <div class="not-content slHeader">
+                        {slk}
+                      </div>
+                      <div class="not-content slContent">
+                        {(slv && Array.isArray(slv) && slv.length >=1 ) && slv.map((b: Buff) => (
+                          <div class="not-content individualBuff">
+                            <HtmlBuff buff={b} ></HtmlBuff>
+                          </div> 
+                        )) }
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            {specalityLevels && specalityLevels.map((sl) => {
-              const levelClass = `not-content ${sl}`;
-              return (
-                <div class={levelClass}>
-                  <div class="not-content slHeader">
-                    {sl}
-                  </div>
-                  <div class="not-content slContent">
-                    {sp[sl] && sp[sl].map((b: Buff) => (
-                      <div class="not-content individualBuff">
-                        <HtmlBuff buff={b} ></HtmlBuff>
-                      </div> 
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>)
+          );
+        }
       })}
     </div>
   </div>
@@ -234,6 +270,16 @@ const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + Go
     margin: 0.1px;
   }
 
+  .individualBuff {
+    display: list-item;
+    grid-row-end: span 1;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 1.1rem;
+  }
+
   .ascendingAttributes {
     width: 100%;
     height: fit-content;
@@ -256,16 +302,6 @@ const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + Go
     grid-column-end: span 6;
     grid-row-start: 2;
     grid-row-end: span var(--ascendingRows);    
-  }
-  
-  .individualBuff {
-    display: list-item;
-    grid-row-end: span 1;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-left: 1.1rem;
   }
 
   .AscendingIndex1 {
@@ -350,18 +386,27 @@ const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + Go
   }
 
   .SpecialityIndex2 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column: 2/3;
     grid-row-start: 2;
     grid-row-end: calc(var(--maxSpecalityRows));
   }
 
   .SpecialityIndex3 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column: 3/4;
     grid-row-start: 2;
     grid-row-end: calc(var(--maxSpecalityRows));
   }
 
   .SpecialityIndex4 {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
     grid-column: 4/5;
     grid-row-start: 2;
     grid-row-end: calc(var(--maxSpecalityRows));
@@ -370,6 +415,14 @@ const maxSpecalityRows = 5 + GreenRows + BlueRows + PurpleRows + OrangeRows + Go
   .SpecialityName {
     grid-row-start: 2;
     align-self: center;
+  }
+
+  .SpecialityContent {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-row-start: 3;
+    grid-row-end: span var(--maxSpecalityRows);
   }
 
   .Green {

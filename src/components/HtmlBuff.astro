@@ -1,6 +1,5 @@
 ---
 import { Buff} from '@schemas/index';
-import type { HTMLAttributes, HTMLTag, Polymorphic } from 'astro/types';
 
 interface Props {
   buff: Buff,
@@ -21,6 +20,7 @@ if(bgColor == undefined || bgColor.length == 0) {
 }
 
 const bClass = `not-content buffAttribute spectrum-Body spectrum-Body--sizeM`;
+if(DEBUG) console.log(JSON.stringify(buff));
 ---
 
 <div class={bClass} >
