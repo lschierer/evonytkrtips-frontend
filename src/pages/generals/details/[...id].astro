@@ -426,31 +426,32 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
   }
 
   .Green {
-    background-color: var(--spectrum-global-color-green-600);
+    background-color: var(--spectrum-global-color-green-400);
     grid-row-start: 3;
     grid-row-end: span var(--GreenRows);
   }
 
   .Blue {
-    background-color: var(--spectrum-global-color-blue-600);
+    background-color: var(--spectrum-global-color-blue-400);
     grid-row-start: calc(var(--GreenRows) + 3);
     grid-row-end: span var(--GreenRows);
   }
 
   .Purple {
-    background-color: var(--spectrum-global-color-purple-600);
+    background-color: var(--spectrum-global-color-purple-400);
     grid-row-start: calc(calc(var(--GreenRows) + 3) + var(--BlueRows));
     grid-row-end: span var(--PurpleRows);
   }
 
   .Orange {
-    background-color: var(--spectrum-global-color-orange-600);
+    background-color: var(--spectrum-global-color-orange-400);
     grid-row-start: calc(calc(calc(var(--GreenRows) + 3) + var(--BlueRows)) + var(--PurpleRows));
     grid-row-end: span var(--OrangeRows);
   }
 
   .Gold {
-    background-color: var(--spectrum-global-color-yellow-600);
+    background-color: var(--spectrum-global-color-yellow-400);
+    --sl-color-text-invert: var(--spectrum-global-color-black-600);
     grid-row-start: calc(calc(calc(calc(var(--GreenRows) + 3) + var(--BlueRows)) + var(--PurpleRows)) + var(--OrangeRows));
     grid-row-end: span var(--GoldRows);
   }
