@@ -3,4 +3,9 @@
   --sl-nav-pad-y: 0.1px;
   --sl-content-width: 90%;
   --sl-sidebar-width: 15rem;
+  
+}
+
+.header {
+  background-color: var(--spectrum-cyan-600);
 }
