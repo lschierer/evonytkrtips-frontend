@@ -1,7 +1,7 @@
 :root {
   --sl-nav-pad-x: 0.1px;
   --sl-nav-pad-y: 0.1px;
-  --sl-content-width: 90%;
+  --sl-content-width: 70vw;
   --sl-sidebar-width: 15rem;
   --sl-color-accent-low: var(--spectrum-global-color-cyan-1300);
   --sl-color-accent: var(--spectrum-global-color-cyan-1000);
