@@ -3,9 +3,20 @@
   --sl-nav-pad-y: 0.1px;
   --sl-content-width: 90%;
   --sl-sidebar-width: 15rem;
+  --sl-color-accent-low: var(--spectrum-global-color-cyan-1300);
+  --sl-color-accent: var(--spectrum-global-color-cyan-1000);
+  .header {
+    --sl-color-bg-nav: var(--spectrum-cyan-600);
+  }
   
 }
 
-.header {
-  background-color: var(--spectrum-cyan-600);
+:root[data-theme='light'] {
+  --sl-color-accent-low: var(
+    --spectrum-global-color-cyan-100);
+  --sl-color-accent: var(--spectrum-global-color-cyan-900);
+
+  .header {
+    --sl-color-bg-nav: var(--spectrum-cyan-600);
+  }
 }
