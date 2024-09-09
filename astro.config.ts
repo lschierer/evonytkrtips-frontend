@@ -5,7 +5,7 @@ import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
-  site: import.meta.env.PROD ? 'https://www.evonytkrtips.net' : "http://${import.meta.env.MODE}.evonytkrtips.net",
+  site: import.meta.env.PROD ? 'https://www.evonytkrtips.net' : `http://${import.meta.env.MODE}.evonytkrtips.net`,
   devToolbar: {
     enabled: false,
   },
@@ -22,6 +22,10 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Evony TKR Tips',
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 4,
+      },
       disable404Route: true,
       pagefind: false,
       social: {

@@ -10,11 +10,19 @@ import type { CollectionEntry } from 'astro:content';
 
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 
+import * as path from 'path';
+import * as fs from 'fs';
+
+type StarlightProps = ComponentProps<typeof StarlightPage>;
+
 import {
   General, 
   Buff,
   Speciality
 } from '@schemas/index';
+
+import GeneralPicture from '@components/GeneralPicture.astro';
+type GeneralPicture = ComponentProps<typeof GeneralPicture>;
 
 import SkillBook from '@components/SkillBook.astro';
 type SkillBook = ComponentProps<typeof SkillBook>;
@@ -63,7 +71,6 @@ if(general.ascendingAttributes && Object.keys(general.ascendingAttributes).lengt
 }
 ascendingRows = ascendingRows * 2;
 
-
 const specalityRows: specialityRow = {};
 const specalityLevels =['Green', 'Blue', 'Purple', 'Orange', 'Gold'];
 general.specialities.forEach((sp: Speciality) => {
@@ -110,13 +117,28 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
   return key.localeCompare('Gold');
 });
 */
+
+
+
+const slprops: StarlightProps = {
+  frontmatter: {
+    title: `Details for ${id}`, 
+    tableOfContents: {
+      minHeadingLevel: 2,
+      maxHeadingLevel: 5,
+    },
+  },
+};
+
 ---
 <StarlightPage
-  frontmatter={{ title: `Details for ${id}`, tableOfContents: {
-    minHeadingLevel: 2,
-    maxHeadingLevel: 5,
-  } }}
+  {...slprops}
 >
+<GeneralPicture 
+    imagePath=`/src/assets/generals/${id}.jpg`
+    altText=`Picture of ${id}`
+    name={id}
+  ></GeneralPicture>
 <div>
   <h3 class="spectrum-Heading spectrum-Heading--sizeM">Base Stats:</h3>
   <p class="spectrum-Body spectrum-Body--sizeM">
@@ -148,8 +170,8 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
 )}
 
 { general.ascendingAttributes && (
-  <div class="not-content grid ascendingAttributes">
-    <div class="not-content AscendingHeading">
+  <div class="ascendingAttributes">
+    <div class="AscendingHeading">
       <h3 class="spectrum-Heading spectrum-Heading--sizeM">
         Ascending Skill Buffs
       </h3>
@@ -163,7 +185,9 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
         return (
           <div class={ascendingClass}>
             <div class="starHeading">
-              {title}
+              <p class="spectrum-Detail spectrum-Detail--sizeXL">
+                <strong>{title}</strong>
+              </p>
             </div>
             {buffs.map((b) => (
               <div class="individualBuff">
@@ -179,8 +203,8 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
 )}
 
 {(maxSpecalityRows >= 0) && (
-  <div class="not-content grid specialities">
-    <div class="not-content SpecalityHeading">
+  <div class="specialities">
+    <div class="SpecalityHeading">
       <h3 class="spectrum-Heading spectrum-Heading--sizeM">
         Specialities
       </h3>
@@ -240,15 +264,6 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
   GoldRows,
   }}>
   <style>
-  .grid {
-    display: grid;
-  }
-
-  .subgrid {
-    display: grid;
-    grid-template-columns: subgrid;
-    grid-template-rows: subgrid;
-  }
 
   ul {
     margin: 0;
@@ -284,6 +299,7 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
     width: 100%;
     height: fit-content;
   
+    display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-auto-rows: minmax(var(spectrum-spacing-200), 1fr));
 
@@ -355,6 +371,7 @@ const GoldKey = Object.keys(general.specialities[0]).find((key) => {
     width: 100%;
     height: fit-content;
   
+    display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-auto-rows: minmax(var(spectrum-spacing-200), 1fr));
   }
