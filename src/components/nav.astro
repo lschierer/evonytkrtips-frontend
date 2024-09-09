@@ -22,7 +22,9 @@ const generalEntries: generalEntry[] = await getCollection('generals');
 
 let isCurrent: boolean = false;
 if(generalEntries.length > 0) {
-  generalEntries.map((entry: CollectionEntry<'generals'>) => {
+  generalEntries.sort((a, b) => {
+        return a.data.name.toLocaleLowerCase().localeCompare(b.data.name.toLocaleLowerCase());
+      }).map((entry: CollectionEntry<'generals'>) => {
   isCurrent = Astro.params.id
     ? !Astro.params.id.localeCompare(entry.id)
     : false;

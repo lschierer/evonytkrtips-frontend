@@ -1,0 +1,54 @@
+---
+import { 
+  type CollectionEntry,
+  getCollection,
+} from 'astro:content';
+import type { ComponentProps } from 'astro/types';
+
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+type StarlightProps = ComponentProps<typeof StarlightPage>;
+
+import {
+  General, 
+} from '@schemas/index';
+
+
+const generalEntries: CollectionEntry<'generals'>[] | undefined =
+  await getCollection('generals');
+
+const generals = Array<General>();
+
+if(generalEntries) {
+  generalEntries.map((g) => {
+    generals.push(g.data);
+  })
+}
+
+const slprops: StarlightProps = {
+  frontmatter: {
+    title: `Details for Specific Evony Generals`, 
+    tableOfContents: false,
+  },
+};
+---
+
+<StarlightPage
+  {...slprops}
+>
+  <CardGrid stagger>
+    {generals && 
+      generals.sort((a, b) => {
+        return a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase());
+      }).map((g) => {
+        const description = `Details about ${g.name}`;
+        const href = `/generals/details/${g.name}`;
+        return <LinkCard
+          title={g.name}
+          description={description}
+          href={href}
+        ></LinkCard>
+      })
+    }
+  </CardGrid>
+</StarlightPage>
