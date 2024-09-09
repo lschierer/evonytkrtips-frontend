@@ -42,6 +42,7 @@ export default defineConfig({
         '@spectrum-web-components/styles/theme-light.css',
         '@spectrum-web-components/styles/scale-medium.css',
         '@spectrum-web-components/styles/typography.css',
+        '@spectrum-css/tokens/dist/index.css',
         './src/styles/tailwind.css',
         './src/styles/custom.css',
       ],

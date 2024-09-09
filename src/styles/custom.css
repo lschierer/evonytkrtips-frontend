@@ -1,22 +1,24 @@
+/* defaults */
+.html {
+  --sl-color-accent: var(--spectrum-cyan-1000);
+
+  --sl-color-accent-low: var(
+    --spectrum-cyan-200);
+  --sl-color-accent-high: var(
+    --spectrum-cyan-1300);
+  
+}
+
+/* component overrides */
+
 :root {
   --sl-nav-pad-x: 0.1px;
   --sl-nav-pad-y: 0.1px;
   --sl-content-width: 70vw;
   --sl-sidebar-width: 15rem;
-  --sl-color-accent-low: var(--spectrum-global-color-cyan-1300);
-  --sl-color-accent: var(--spectrum-global-color-cyan-1000);
-  .header {
-    --sl-color-bg-nav: var(--spectrum-cyan-600);
-  }
   
 }
 
-:root[data-theme='light'] {
-  --sl-color-accent-low: var(
-    --spectrum-global-color-cyan-100);
-  --sl-color-accent: var(--spectrum-global-color-cyan-900);
-
-  .header {
-    --sl-color-bg-nav: var(--spectrum-cyan-600);
-  }
+.header {
+  --sl-color-bg-nav: var(--spectrum-cyan-600);
 }
