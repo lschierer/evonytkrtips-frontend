@@ -3,8 +3,14 @@ import starlight from '@astrojs/starlight';
 
 import tailwind from '@astrojs/tailwind';
 
+import node from '@astrojs/node';
+
 // https://astro.build/config
 export default defineConfig({
+  output: 'hybrid',
+  adapter: node({
+    mode: 'standalone',
+  }),
   site: import.meta.env.PROD ? 'https://www.evonytkrtips.net' : `http://${import.meta.env.MODE}.evonytkrtips.net`,
   devToolbar: {
     enabled: false,
