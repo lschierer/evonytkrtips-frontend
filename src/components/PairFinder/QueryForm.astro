@@ -1,0 +1,97 @@
+---
+
+import { actions } from 'astro:actions';
+
+import '@spectrum-css/picker'; 
+import '@spectrum-css/fieldlabel';
+
+import {
+  AscendingLevels,
+  GeneralOptions,
+  primaryGeneralOptions,
+} from '@schemas/generalForm';
+
+let primaryOptions: GeneralOptions = {
+  'ascending-level': 'None'
+};
+
+const result = Astro.getActionResult(actions.primaryGeneral.getOptions);
+if(result && !result?.error) {
+  if(result.data) {
+    const data: GeneralOptions = result.data;
+    if(Object.keys(data).includes('ascending-level')) {
+      primaryOptions['ascending-level'] = data['ascending-level'] ?? AscendingLevels.enum.None;
+    }
+    else {
+      console.error('ascending-level was not set as a key')
+    }
+  }
+  else if(result && result.error) {
+    // @ts-expect-error
+    console.error(result.error.message)
+  }
+}
+
+const pAscending: AscendingLevels = primaryOptions['ascending-level'] ?? AscendingLevels.enum.None;
+---
+
+{pAscending && (
+  <div>
+    <form 
+      class="spectrum-Form spectrum-Form--labelsAbove"
+      method="POST"
+      action={actions.primaryGeneral.getOptions}
+    >
+      <div class="spectrum-Form-item">
+        <label 
+          for="primary-ascending-level"
+          class="spectrum-FieldLabel spectrum-FieldLabel--sizeM spectrum-Form-itemLabel"
+          >
+          Primary General's Ascending Level
+        </label>
+        <select 
+          class="spectrum-Picker spectrum-Picker--sizeM" 
+          aria-haspopup="listbox" 
+          id="primary-ascending-level"
+          name="primary-ascending-level"
+          value={pAscending}
+          >
+          {AscendingLevels.options.map((level, index) => {
+            let optionClass="spectrum-Menu-item ";
+            let ariaSelected=false;
+            if(!pAscending.localeCompare(level)) {
+              optionClass = `${optionClass} is-selected`;
+              return (
+                <option
+                  class={optionClass}
+                  role="option" 
+                  aria-selected="true"
+                  selected="true"
+                  tabindex={index}
+                >
+                  {level}
+                </option>  
+              );
+            } 
+            else {
+              return (
+              <option
+                  class={optionClass}
+                  role="option" 
+                  tabindex={index}
+                >
+                  {level}
+                </option>  
+              );
+            }
+          })}
+      </select>
+      </div>
+      <div class="spectrum-Form-item">
+        <input type="submit"></input>
+      </div>
+    </form>
+  </div>
+)}
+
+  
