@@ -9,9 +9,12 @@ export const skillBooks = defineCollection({
     const data = await response.json();
     // Must return an array of entries with an id property,
     // or an object with IDs as keys and entries as values
-    return data.map((book: skillBook) => ({
+    
+    const mappedData: skillBook[] =  data.map((book: skillBook) => ({
       ...book,
     }));
+    
+    return mappedData.length ? mappedData : new Array<skillBook>();
   },
 });
 
@@ -21,9 +24,10 @@ export const generals = defineCollection({
     const data = await response.json();
     // Must return an array of entries with an id property,
     // or an object with IDs as keys and entries as values
-    return data.map((general: General) => ({
+    const mappedData: General[] = data.map((general: General) => ({
       ...general,
     }));
+    return mappedData.length ? mappedData : new Array<General>();
   },
 });
 

@@ -90,7 +90,7 @@ export const ComponentScores = z.object({
 export type ComponentScores = z.infer<typeof ComponentScores>;
 
 export const skillBook = z.object({
-  "id":   z.string().optional(),
+  "id":   z.string(),
   "buffs": z.array(Buff).optional(),
   "name": z.string(),
   "text": z.union([z.null(), z.string()]),
