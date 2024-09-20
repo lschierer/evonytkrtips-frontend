@@ -23,7 +23,7 @@ import {
 
 import GeneralPicture from '@components/GeneralPicture.astro';
 type GeneralPicture = ComponentProps<typeof GeneralPicture>;
-
+  
 import SkillBook from '@components/SkillBook.astro';
 type SkillBook = ComponentProps<typeof SkillBook>;
 
@@ -155,10 +155,13 @@ const slprops: StarlightProps = {
   </p>
 </div>
 
-<div>
-  <h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
-  <SkillBook name={general.builtInBook.name}></SkillBook>
-</div>
+
+{general.builtInBook && (
+  <div>
+    <h3 class="spectrum-Heading spectrum-Heading--sizeM">Special Skill:</h3>
+    <SkillBook name={general.builtInBook.name}></SkillBook> 
+  </div>
+)}
 
 {(general.otherBooks.length > 0) && (
   <div>

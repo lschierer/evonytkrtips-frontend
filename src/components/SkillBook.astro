@@ -9,64 +9,70 @@ interface Props {
 const DEBUG = 1;
 
 const { name } = Astro.props;
-
-const bookEntry  = await getEntry('skillBooks', name);
-const book: skillBook = bookEntry.data;
-if( name.toLocaleLowerCase().localeCompare(book.name.
-  toLocaleLowerCase(), undefined , {sensitivity: 'base'})) {
-    if (DEBUG) console.log(`{name} does not match {book.name}`);
-  throw new Error('Invalid SkillBook');
-  }
-
+let book: skillBook | undefined ;
 let contentString = '';
 const defaultMissingBookText = 'Original Text Not Available.'.toLocaleLowerCase();
-if((book.text !== null && book.text !== undefined) && book.text.toLocaleLowerCase().localeCompare(defaultMissingBookText)) {
-  contentString = book.text;
+
+const bookEntry  = await getEntry('skillBooks', name);
+if(bookEntry !== undefined && bookEntry.data !== undefined) {
+  book = bookEntry.data;
+  if(book !== undefined) {
+    if( name.toLocaleLowerCase().localeCompare(book.name.
+      toLocaleLowerCase(), undefined , {sensitivity: 'base'})) {
+      if (DEBUG) console.log(`{name} does not match {book.name}`);
+      throw new Error('Invalid SkillBook');
+    }
+    if((book.text !== null && book.text !== undefined) && book.text.toLocaleLowerCase().localeCompare(defaultMissingBookText)) {
+      contentString = book.text;
+    }
+    if(DEBUG) console.log(`book.text is ${book.text}`);
+  }
 }
-if(DEBUG) console.log(`book.text is ${book.text}`);
+
 if(DEBUG) console.log(`defaultMissingBookText is ${defaultMissingBookText}`);
 if(DEBUG) console.log(`contentString is ${contentString}`);
 ---
-
-<h4 class="spectrum-Heading spectrum-Heading--sizeM">{name}</h3>
-<p class="spectrum-Body spectrum-Body--sizeM">
-  {(contentString.length > 0) ? contentString : (
-    <div class="grid non-content">
-      <ul class="spectrum-Body spectrum-Body--sizeM">
-        {(book.buffs !== undefined) && (book.buffs.length > 0) && book.buffs.map((b)=>(
-          <li class="spectrum-Body spectrum-Body--sizeM">
-            {b.condition && b.condition.join(' ')}
-            {b.class}
-            {b.attribute ? b.attribute : ' '}
-            {b.value.number}{b.value.unit.localeCompare('percentage') ? '' : '%'}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
-</p>
-<style>
-  .grid {
-    display: grid;
-  }
-  ul {
-    margin: 0;
-    padding-top: 0;
-    padding-left: 1rem;
-    
-    & li {
-      padding-top: 0;
-      padding-bottom: 0;
-      margin-top: 0;
-      margin-bottom: 0;
-      margin-left: 0.5rem;
+{book && (
+  <h4 class="spectrum-Heading spectrum-Heading--sizeM">{name}</h3>
+  <p class="spectrum-Body spectrum-Body--sizeM">
+    {(contentString.length > 0) ? contentString : (
+      <div class="grid non-content">
+        <ul class="spectrum-Body spectrum-Body--sizeM">
+          {(book.buffs !== undefined) && (book.buffs.length > 0) && book.buffs.map((b)=>(
+            <li class="spectrum-Body spectrum-Body--sizeM">
+              {b.condition && b.condition.join(' ')}
+              {b.class}
+              {b.attribute ? b.attribute : ' '}
+              {b.value.number}{b.value.unit.localeCompare('percentage') ? '' : '%'}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </p>
+  <style>
+    .grid {
+      display: grid;
     }
-  }
+    ul {
+      margin: 0;
+      padding-top: 0;
+      padding-left: 1rem;
+      
+      & li {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        margin-left: 0.5rem;
+      }
+    }
 
-  :is(div) {
-    align-content: start;
-    justify-content: start;
-    margin: 0.1px;
-  }
+    :is(div) {
+      align-content: start;
+      justify-content: start;
+      margin: 0.1px;
+    }
 
-</style>
+  </style>
+)}
